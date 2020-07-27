@@ -41,5 +41,15 @@
         "mimer": "*",
         "lz-string": "*",
         "xml2js": "*"
+    },
+    "cordova": {
+        "platforms": [
+            "android",
+            "ios"
+        ]
+    },
+    "dependencies": {
+        "cordova-android": "^8.0.0",
+        "cordova-ios": "^5.0.0"
     }
 }

@@ -22,7 +22,7 @@ bento.define('screens/main', [
     'entities/camera360',
     'onigiri/onigiri',
     'onigiri/primitive'
-], function (
+], function(
     Bento,
     Vector2,
     Rectangle,
@@ -45,21 +45,25 @@ bento.define('screens/main', [
     Primitive
 ) {
     'use strict';
-    var onShow = function () {
+    var onShow = function() {
         // --- Start Onigiri ---
         var onigiri = new Onigiri({
-            backgroundColor: '#33ddff',
-            camera: {
-                cameraStyle: 'perspective',
-                perspectiveFieldOfView: 45
-            },
+            backgroundColor: '#d8f0f6',
+            camera: new Onigiri.Camera({
+                style: 'perspective', // or orthographic
+                perspectiveFieldOfView: 45,
+                orthographicSize: 15,
+                nearClippingPlane: 0.1,
+                farClippingPlane: 1000,
+                autoModifyFieldOfView: true //if kept true, the field of view will be modified based on the screenratio (taller screens get a higher FoV).
+            }),
             shadows: true
         });
         Bento.objects.attach(onigiri);
 
         // --- Some Lighting ---
         var sun = new Sun({
-            color: '#fff',
+            color: '#ffffff',
             directionalIntensity: 0.2,
             ambientIntensity: 0.8,
             position: new THREE.Vector3(5, 10, 5),
@@ -68,19 +72,24 @@ bento.define('screens/main', [
         Bento.objects.attach(sun);
 
         // --- Infinite Floor Plane ---
+        var floorTex = Onigiri.getTexture('grid');
+        floorTex.wrapS = THREE.RepeatWrapping;
+        floorTex.wrapT = THREE.RepeatWrapping;
+        floorTex.repeat.set(100, 100);
         var floor = new Primitive({
             shape: 'plane',
-            position: new THREE.Vector3(0, -0.2, 0),
+            position: new THREE.Vector3(0, 0, 0),
             euler: new THREE.Euler(-Math.PI * 0.5, 0, 0),
             material: new THREE.MeshPhongMaterial({
+                map: floorTex,
                 color: 0xe0f9ff,
                 shininess: 100,
                 side: THREE.FrontSide,
                 blending: THREE.NormalBlending
             }),
             parameters: [
-                10000,
-                10000
+                1000,
+                1000
             ],
             receiveShadow: true,
         });

@@ -9,6 +9,9 @@
             "luckykat.gltf": "luckykat.gltf",
             "luckykat.png": "luckykat.png"
         },
+        "images": {
+            "grid": "grid.png"
+        },
         "path": "assets/3d/"
     },
     "main": {

@@ -20,7 +20,7 @@ bento.define('entities/camera360', [
     'bento/utils',
     'bento/tween',
     'onigiri/onigiri'
-], function (
+], function(
     Bento,
     Vector2,
     Rectangle,
@@ -36,20 +36,20 @@ bento.define('entities/camera360', [
     Onigiri
 ) {
     'use strict';
-    return function (settings) {
+    return function(settings) {
         var TwoPi = Math.PI * 2;
         var angle = 0;
-        var rotationRate = settings.rotationRate || 0.025;
+        var rotationRate = settings.rotationRate || 0.015;
         var center = new THREE.Vector3(0, 1, 0.7);
-        var orbitRadius = 10;
+        var orbitRadius = 12;
         var behavior = {
             name: 'behaviorComponent',
-            update: function (data) {
+            update: function(data) {
                 // update position, rotate around target
                 angle += rotationRate * data.speed;
                 angle = angle % TwoPi;
                 Onigiri.camera.position.x = center.x + Math.sin(angle) * orbitRadius;
-                Onigiri.camera.position.y = center.y + 1;
+                Onigiri.camera.position.y = center.y + 3;
                 Onigiri.camera.position.z = center.z + Math.cos(angle) * orbitRadius;
 
                 // look at target

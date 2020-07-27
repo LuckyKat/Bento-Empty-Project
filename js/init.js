@@ -75,7 +75,8 @@ bento.define('init', [
                     'onigiri/entity3d',
                     'onigiri/light',
                     'onigiri/primitive',
-                    'onigiri/trail'
+                    'onigiri/trail',
+                'onigiri/camera'
                 ],
                 onComplete: function () {
                     Bento.screens.show('screens/preloader');
