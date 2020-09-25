@@ -25,7 +25,7 @@
         "gulp-rename": "*",
         "gulp-replace": "*",
         "gulp-tap": "*",
-        "gulp-uglify": "*",
+        "gulp-uglify-es": "*",
         "gulp-usemin": "*",
         "gulp-watch": "*",
         "gulp-zip": "*",
