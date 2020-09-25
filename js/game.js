@@ -65,8 +65,8 @@ window.startGame = function () {
             renderer: 'three',
             pixelSize: 3, // additional scaling
             antiAlias: false,
-            useDeltaT: false,
-            autoThrottle: false,
+            useDeltaT: true,
+            autoThrottle: true,
             subPixel: true,
             useQueries: true, // add query strings to asset http requests
             preventContextMenu: true, // prevent right-click context menu
