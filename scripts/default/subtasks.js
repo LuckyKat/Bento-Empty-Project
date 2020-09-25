@@ -139,7 +139,9 @@ function collectLoop() {
     var src = [
         'assets/**/*.json',
         'assets/**/*.png',
+        'assets/**/*.otf',
         'assets/**/*.ttf',
+        'assets/**/*.atlas',
         'assets/**/*.fbx',
         'assets/**/*.gltf',
         'assets/**/*.bin',
@@ -165,8 +167,10 @@ function collectLoop() {
             var baseName = folders[0];
             var assetName;
             var asset;
+            var fileType;
             var collectSimple = function (type, useExtension) {
                 asset = filePath.replace(path.join(baseName, type) + path.sep, '');
+                fileType = asset.split('.')[1];
                 if (!useExtension) {
                     assetName = asset.split('.')[0];
                 } else {
@@ -178,6 +182,11 @@ function collectLoop() {
                     assetName = assetName.replace(/\\/g, '/');
                 }
 
+                if (type === 'spine3d' && (fileType === 'png' || fileType === 'atlas')) {
+                    // png is ignored because texturepacker can create multiple images
+                    return;
+                }
+
                 json[type] = json[type] || {};
                 json[type][assetName] = asset;
 
@@ -185,6 +194,8 @@ function collectLoop() {
                 if (type === 'spritesheets') {
                     json[type][assetName] = json[type][assetName].replace('.json', '');
                     json[type][assetName] = json[type][assetName].replace('.png', '');
+                } else if (type === 'spine3d') {
+                    json[type][assetName] = json[type][assetName].replace('.json', '');
                 }
             };
             var collectAudio = function () {
@@ -224,6 +235,8 @@ function collectLoop() {
                 collectSimple('fonts');
             } else if (folders[1] === 'spritesheets') {
                 collectSimple('spritesheets');
+            } else if (folders[1] === 'spine3d') {
+                collectSimple('spine3d');
             } else if (folders[1] === 'fbx') {
                 collectSimple('fbx');
             } else if (folders[1] === 'gltf') {
@@ -304,7 +317,9 @@ function copyToWww() {
     var src = [
         'assets/**/*.json',
         'assets/**/*.png',
+        'assets/**/*.otf',
         'assets/**/*.ttf',
+        'assets/**/*.atlas',
         'assets/**/*.fbx',
         'assets/**/*.gltf',
         'assets/**/*.bin',
@@ -726,22 +741,53 @@ function inlineAssets(callback) {
                     var fullPath = path.join(buildPath, groupPath, assetType, assetPath);
                     var fullPathJson = fullPath + '.json';
                     var fullPathPng = fullPath + '.png';
+                    var fullPathAtlas = fullPath + '.atlas';
 
                     if (fs.existsSync(fullPath)) {
                         assetToBase64(fullPath);
                     } else {
-                        // the path may be missing .png or .json at the end (spritesheets & packed-images)
-                        if (fs.existsSync(fullPathJson) && fs.existsSync(fullPathPng)) {
+                        if (assetType === 'spine3d' && fs.existsSync(fullPathJson) && fs.existsSync(fullPathAtlas)) {
+                            // spine consists of 2 main assets and an unknown amount of images
+                            assetToBase64(fullPathJson, fullPathAtlas, assetType, assetPath);
+                        } else if (fs.existsSync(fullPathJson) && fs.existsSync(fullPathPng)) {
+                            // the path may be missing .png or .json at the end (spritesheets & packed-images)
                             assetToBase64(fullPathJson, fullPathPng);
                         } else {
                             // ???
                         }
                     }
                 };
-                var assetToBase64 = function (filePath1, filePath2) {
+                var assetToBase64 = function (filePath1, filePath2, type) {
                     var file1;
                     var file2;
-                    if (filePath1 && filePath2) {
+                    var atlas, lines;
+                    if (type === 'spine3d' && filePath1 && filePath2) {
+                        // convert both, assume 1 is json, 2 is png, 3 is atlas
+                        file1 = convertToBase64DataUrl(filePath1);
+                        file2 = convertToBase64DataUrl(filePath2);
+                        assets[assetKey] = {
+                            json: file1,
+                            atlas: file2,
+                            images: {}
+                        };
+                        // the images are unknown, we need to parse the atlas file and search through it
+                        atlas = fs.readFileSync(filePath2, 'utf-8');
+                        // read it line by line
+                        lines = atlas.split(/\r\n|\r|\n/);
+                        Utils.forEach(lines, function (line, i, l, breakLoop) {
+                            var imagePath;
+                            if (line.endsWith('png')) {
+                                // find the image path
+                                // we assume the image is always next to the json or atlas file
+                                var directory = path.dirname(filePath1);
+                                imagePath = path.join(directory, line);
+                                // load file and compress
+                                assets[assetKey].images[line] = convertToBase64DataUrl(imagePath);
+                            }
+                        });
+
+                    } else if (filePath1 && filePath2) {
+                        // assume spritesheet
                         // convert both, assume 1 is json, 2 is png
                         file1 = convertToBase64DataUrl(filePath1);
                         file2 = convertToBase64DataUrl(filePath2);
