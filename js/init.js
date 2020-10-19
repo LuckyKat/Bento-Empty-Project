@@ -18,7 +18,6 @@ bento.define('init', [
 ) {
     'use strict';
     return function () {
-
         // init structure
         var initFunctions = {
             /*
@@ -41,7 +40,7 @@ bento.define('init', [
                 }
             }
         };
-        var initList = {
+        var initData = {
             inputSafety: {
                 require: [],
                 priority: 0,
@@ -63,17 +62,17 @@ bento.define('init', [
             require: [],
             order: []
         };
-        Object.keys(initList).sort(function (a, b) {
-            if (initList[a].priority > initList[b].priority) {
+        Object.keys(initData).sort(function (a, b) {
+            if (initData[a].priority > initData[b].priority) {
                 return 1;
             }
         }).forEach(function (initName) {
-            if (initList[initName].postPreload) {
+            if (initData[initName].postPreload) {
                 postPreloaderInit.order.push(initName);
-                postPreloaderInit.list = postPreloaderInit.list.concat(initList[initName].require);
+                postPreloaderInit.require = postPreloaderInit.require.concat(initData[initName].require);
             } else {
                 prePreloaderInit.order.push(initName);
-                prePreloaderInit.list = prePreloaderInit.list.concat(initList[initName].require);
+                prePreloaderInit.require = prePreloaderInit.require.concat(initData[initName].require);
             }
         });
 
@@ -89,7 +88,7 @@ bento.define('init', [
 
                 //run all the initFunctions with their respective modules as arguments
                 orderedModuleList.order.forEach(function (initName) {
-                    var requiredModules = modules.slice(currentModuleIndex, currentModuleIndex + initList[initName].require.length);
+                    var requiredModules = modules.slice(currentModuleIndex, currentModuleIndex + initData[initName].require.length);
                     initFunctions[initName](...requiredModules);
                 });
 
