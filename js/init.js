@@ -63,9 +63,7 @@ bento.define('init', [
             order: []
         };
         Object.keys(initData).sort(function (a, b) {
-            if (initData[a].priority > initData[b].priority) {
-                return 1;
-            }
+            return (initData[a].priority < initData[b].priority) ? 1 : -1;
         }).forEach(function (initName) {
             if (initData[initName].postPreload) {
                 postPreloaderInit.order.push(initName);
